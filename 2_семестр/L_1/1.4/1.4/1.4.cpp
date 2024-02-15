@@ -24,9 +24,38 @@ int main()
 		return 1;
 	}
 
-	int Lines, Columns;
-	char ch;
+	int lines, columns;
+	input >> lines >> columns;
 
+	std::vector<std::vector<int>> field(lines, std::vector<int>(columns));
+
+	for (int i = 0; i < lines; i++)
+	{
+		for (int j = 0; j < columns; j++)
+		{
+			char ch;
+			input >> ch;
+			field[i][j] = ch - '0';
+		}
+	}
+
+	int count = 0;
+	for (int i = 0; i < lines; i++)
+	{
+		for (int j = 0; j < columns; j++)
+		{
+			if (field[i][j] == 1)
+			{
+				if (i == 0 || field[i - 1][j] == 0) count++;
+				if (i == lines - 1 || field[i + 1][j] == 0) count++;
+				if (j == 0 || field[i][j - 1] == 0) count++;
+				if (j == columns - 1 || field[i][j + 1] == 0) count++;
+			}
+		}
+	}
+
+	std::cout << count << '\n';
+	
 
     return 0;
 }
