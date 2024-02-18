@@ -44,12 +44,12 @@ int main()
 	{
 		for (int j = 0; j < columns; j++)
 		{
-			if (field[i][j] == 1)
+			if (field[i][j] == TREE)
 			{
-				if (i == 0 || field[i - 1][j] == 0) count++;
-				if (i == lines - 1 || field[i + 1][j] == 0) count++;
-				if (j == 0 || field[i][j - 1] == 0) count++;
-				if (j == columns - 1 || field[i][j + 1] == 0) count++;
+				if (i == 0 || field[i - 1][j] == EMPTY) count++; // check North
+				if (i == lines - 1 || field[i + 1][j] == EMPTY) count++; // check South
+				if (j == 0 || field[i][j - 1] == EMPTY) count++; // check West
+				if (j == columns - 1 || field[i][j + 1] == EMPTY) count++; // check East
 			}
 		}
 	}
