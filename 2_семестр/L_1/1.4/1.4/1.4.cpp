@@ -8,6 +8,7 @@ const int K_MAX = 300;
 const int N_MIN = 1;
 const int TREE = 1;
 const int EMPTY = 0;
+const int BORDER = 3;
 
 int main()
 {
@@ -29,16 +30,30 @@ int main()
 
 	std::vector<std::vector<int>> field(lines, std::vector<int>(columns));
 
+	// считывание файла
 	for (int i = 0; i < lines; i++)
 	{
 		for (int j = 0; j < columns; j++)
 		{
 			char ch;
 			input >> ch;
-			field[i][j] = ch - '0';
+			if (ch == '0' && (i == 0 || i == lines - 1)) field[i][j] = BORDER;
+			if (ch == '0' && (j == 0 || j == columns - 1)) field[i][j] = BORDER;
+			if (ch == '1') field[i][j] = 1;
 		}
 	}
 
+	// вывод поля
+	for (int i = 0; i < lines; i++)
+	{
+		for (int j = 0; j < columns; j++)
+		{
+			std::cout << field[i][j];
+		}
+		std::cout << '\n';
+	}
+
+	// подсчет заборов (пока не работает)
 	int count = 0;
 	for (int i = 0; i < lines; i++)
 	{
