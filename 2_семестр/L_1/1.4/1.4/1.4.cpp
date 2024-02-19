@@ -6,9 +6,44 @@
 
 const int K_MAX = 300;
 const int N_MIN = 1;
-const int TREE = 1;
-const int EMPTY = 0;
-const int BORDER = 3;
+const char TREE = '1';
+const char EMPTY = '0';
+const char BORDER = '#';
+const char PASSED = '.';
+
+struct Coord {
+	int x;
+	int y;
+};
+
+void changeMarker(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, Coord& pos, char changeCh)
+{
+	while (!stack.empty())
+	{
+		pos = stack.back();
+		stack.pop_back();
+		field[pos.x][pos.y] = changeCh;
+	}
+}
+
+void checkEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, int i, int j, Coord& pos)
+{
+	pos.x = i;
+	pos.y = j;
+	if (field[i][j] != BORDER && field[i][j] != TREE)
+	{
+		stack.push_back(pos);
+		field[i][j] = PASSED;
+	}
+	if (field[i][j] == BORDER)
+	{
+		changeMarker(stack, field, pos, BORDER);
+	}
+	checkEmptyPlace(stack, field, i + 1, j, pos);
+	checkEmptyPlace(stack, field, i - 1, j, pos);
+	checkEmptyPlace(stack, field, i, j + 1, pos);
+	checkEmptyPlace(stack, field, i, j - 1, pos);
+}
 
 int main()
 {
@@ -28,7 +63,8 @@ int main()
 	int lines, columns;
 	input >> lines >> columns;
 
-	std::vector<std::vector<int>> field(lines, std::vector<int>(columns));
+	std::vector<Coord> memory;
+	std::vector<std::vector<char>> field(lines, std::vector<char>(columns));
 
 	// считывание файла
 	for (int i = 0; i < lines; i++)
@@ -37,9 +73,18 @@ int main()
 		{
 			char ch;
 			input >> ch;
-			if (ch == '0' && (i == 0 || i == lines - 1)) field[i][j] = BORDER;
-			if (ch == '0' && (j == 0 || j == columns - 1)) field[i][j] = BORDER;
-			if (ch == '1') field[i][j] = 1;
+			if ((ch == EMPTY) && ((j == 0 || j == columns - 1) || (i == 0 || i == lines - 1)))
+			{
+				field[i][j] = BORDER;
+			} 
+			else
+			{
+				field[i][j] = EMPTY;
+			}
+			if (ch == TREE)
+			{
+				field[i][j] = TREE;
+			}
 		}
 	}
 
@@ -53,23 +98,42 @@ int main()
 		std::cout << '\n';
 	}
 
-	// подсчет заборов (пока не работает)
-	int count = 0;
-	for (int i = 0; i < lines; i++)
+	Coord pos;
+
+	for (int i = 1; i < lines - 1; i++)
 	{
-		for (int j = 0; j < columns; j++)
+		for (int j = 1; j < columns - 1; j++)
 		{
-			if (field[i][j] == TREE)
+			if (field[i][j] == EMPTY) 
 			{
-				if (i == 0 || field[i - 1][j] == EMPTY) count++; // check North
-				if (i == lines - 1 || field[i + 1][j] == EMPTY) count++; // check South
-				if (j == 0 || field[i][j - 1] == EMPTY) count++; // check West
-				if (j == columns - 1 || field[i][j + 1] == EMPTY) count++; // check East
+				checkEmptyPlace(memory, field, i, j, pos);
 			}
+			else
+			{
+				continue;
+			}
+			
+
 		}
 	}
 
-	std::cout << count << '\n';
+	// подсчет заборов (пока не работает)
+	//int count = 0;
+	//for (int i = 0; i < lines; i++)
+	//{
+	//	for (int j = 0; j < columns; j++)
+	//	{
+	//		if (field[i][j] == TREE)
+	//		{
+	//			if (i == 0 || field[i - 1][j] == EMPTY) count++; // check North
+	//			if (i == lines - 1 || field[i + 1][j] == EMPTY) count++; // check South
+	//			if (j == 0 || field[i][j - 1] == EMPTY) count++; // check West
+	//			if (j == columns - 1 || field[i][j + 1] == EMPTY) count++; // check East
+	//		}
+	//	}
+	//}
+
+	//std::cout << count << '\n';
 	
 
     return 0;
