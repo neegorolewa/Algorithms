@@ -10,7 +10,8 @@ const char TREE = '1';
 const char EMPTY = '0';
 const char BORDER = '#';
 const char PASSED = '.';
-
+const std::string IN_FILE = "input.txt";
+ 
 struct Coord {
 	int x;
 	int y;
@@ -39,6 +40,10 @@ void checkEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& 
 	{
 		changeMarker(stack, field, pos, BORDER);
 	}
+	if ((field[i][j] != EMPTY) || (field[i][j] != BORDER))
+	{
+		return;
+	}
 	checkEmptyPlace(stack, field, i + 1, j, pos);
 	checkEmptyPlace(stack, field, i - 1, j, pos);
 	checkEmptyPlace(stack, field, i, j + 1, pos);
@@ -47,18 +52,7 @@ void checkEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& 
 
 int main()
 {
-	SetConsoleCP(1251);
-	SetConsoleOutputCP(1251);
-	std::string inputFileName;
-	std::cout << "Введите файл: ";
-	std::cin >> inputFileName;
-	std::ifstream input;
-	input.open(inputFileName);
-
-	if (!input.is_open()) {
-		std::cout << "Failed to open '" << inputFileName << "' for reading\n";
-		return 1;
-	}
+	std::ifstream input(IN_FILE);
 
 	int lines, columns;
 	input >> lines >> columns;
@@ -88,18 +82,9 @@ int main()
 		}
 	}
 
-	// вывод поля
-	for (int i = 0; i < lines; i++)
-	{
-		for (int j = 0; j < columns; j++)
-		{
-			std::cout << field[i][j];
-		}
-		std::cout << '\n';
-	}
-
 	Coord pos;
 
+	// Обход поля для нулей
 	for (int i = 1; i < lines - 1; i++)
 	{
 		for (int j = 1; j < columns - 1; j++)
@@ -115,6 +100,16 @@ int main()
 			
 
 		}
+	}
+
+	// вывод поля
+	for (int i = 0; i < lines; i++)
+	{
+		for (int j = 0; j < columns; j++)
+		{
+			std::cout << field[i][j];
+		}
+		std::cout << '\n';
 	}
 
 	// подсчет заборов (пока не работает)
