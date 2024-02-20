@@ -10,7 +10,7 @@ const char TREE = '1';
 const char EMPTY = '0';
 const char BORDER = '#';
 const char PASSED = '.';
-const std::string IN_FILE = "input.txt";
+const std::string IN_FILE = "input4.txt";
  
 struct Coord {
 	int x;
@@ -27,11 +27,11 @@ void changeMarker(std::vector<Coord>& stack, std::vector<std::vector<char>>& fie
 	}
 }
 
-void checkEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, int i, int j, Coord& pos)
+void checkEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, int i, int j, Coord& pos, bool& flag)
 {
 	pos.x = i;
 	pos.y = j;
-	if (field[i][j] != BORDER && field[i][j] != TREE)
+	if (field[i][j] == EMPTY)
 	{
 		stack.push_back(pos);
 		field[i][j] = PASSED;
@@ -39,15 +39,42 @@ void checkEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& 
 	if (field[i][j] == BORDER)
 	{
 		changeMarker(stack, field, pos, BORDER);
-	}
-	if ((field[i][j] != EMPTY) || (field[i][j] != BORDER))
-	{
+		flag = true;
 		return;
 	}
-	checkEmptyPlace(stack, field, i + 1, j, pos);
-	checkEmptyPlace(stack, field, i - 1, j, pos);
-	checkEmptyPlace(stack, field, i, j + 1, pos);
-	checkEmptyPlace(stack, field, i, j - 1, pos);
+	if (field[i][j] == TREE)
+	{
+		if (!flag)
+		{
+			changeMarker(stack, field, pos, TREE);
+		}
+		return;
+	}
+	checkEmptyPlace(stack, field, i + 1, j, pos, flag);
+	checkEmptyPlace(stack, field, i - 1, j, pos, flag);
+	checkEmptyPlace(stack, field, i, j + 1, pos, flag);
+	checkEmptyPlace(stack, field, i, j - 1, pos, flag);
+}
+
+int countFenceBlock(std::vector<std::vector<char>>& field, int& lines, int& columns)
+{
+	 // подсчет заборов (пока не работает)
+	int count = 0;
+	for (int i = 0; i < lines; i++)
+	{
+		for (int j = 0; j < columns; j++)
+		{
+			if (field[i][j] == TREE)
+			{
+				if (i == 0 || field[i - 1][j] == BORDER) count++; // check North
+				if (i == lines - 1 || field[i + 1][j] == BORDER) count++; // check South
+				if (j == 0 || field[i][j - 1] == BORDER) count++; // check West
+				if (j == columns - 1 || field[i][j + 1] == BORDER) count++; // check East
+			}
+		}
+	}
+
+	return count;
 }
 
 int main()
@@ -91,14 +118,13 @@ int main()
 		{
 			if (field[i][j] == EMPTY) 
 			{
-				checkEmptyPlace(memory, field, i, j, pos);
+				bool isBorder = false;
+				checkEmptyPlace(memory, field, i, j, pos, isBorder);
 			}
 			else
 			{
 				continue;
 			}
-			
-
 		}
 	}
 
@@ -112,25 +138,9 @@ int main()
 		std::cout << '\n';
 	}
 
-	// подсчет заборов (пока не работает)
-	//int count = 0;
-	//for (int i = 0; i < lines; i++)
-	//{
-	//	for (int j = 0; j < columns; j++)
-	//	{
-	//		if (field[i][j] == TREE)
-	//		{
-	//			if (i == 0 || field[i - 1][j] == EMPTY) count++; // check North
-	//			if (i == lines - 1 || field[i + 1][j] == EMPTY) count++; // check South
-	//			if (j == 0 || field[i][j - 1] == EMPTY) count++; // check West
-	//			if (j == columns - 1 || field[i][j + 1] == EMPTY) count++; // check East
-	//		}
-	//	}
-	//}
-
-	//std::cout << count << '\n';
+	int count = countFenceBlock(field, lines, columns);
+	std::cout << count << '\n';
 	
-
     return 0;
 }
 
