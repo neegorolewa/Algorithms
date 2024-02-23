@@ -15,21 +15,11 @@
     </Filter>
   </ItemGroup>
   <ItemGroup>
-    <ClCompile Include="1.4.cpp">
+    <ClCompile Include="make_test_1.4.cpp">
       <Filter>Исходные файлы</Filter>
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
-    <Text Include="input1.txt" />
-    <Text Include="input2.txt" />
-    <Text Include="input3.txt" />
-    <Text Include="input4.txt" />
-    <Text Include="input5.txt" />
-    <Text Include="input6.txt" />
-    <Text Include="output.txt" />
-    <Text Include="input_test_200.txt" />
-    <Text Include="input_test_100.txt" />
-    <Text Include="input_test_50.txt" />
-    <Text Include="input_test_10.txt" />
+    <Text Include="input_test.txt" />
   </ItemGroup>
 </Project>
