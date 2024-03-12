@@ -23,17 +23,14 @@
 const char TREE = '1';
 const char EMPTY = '0';
 const char BORDER = '#';
-const char PASSED = '.';
-const std::string IN_FILE = "input1.txt";
-const std::string OUT_FILE = "output.txt"; 
-
+ 
 struct Coord {
 	int x;
 	int y;
 };
 
 // Процедура, изменяющая пройденные нули на "#" или "1", в зависмости от состояния
-void changeMarker(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, Coord& pos, char changeCh)
+void ChangeMarker(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, Coord& pos, char changeCh)
 {
 	while (!stack.empty())
 	{
@@ -44,7 +41,7 @@ void changeMarker(std::vector<Coord>& stack, std::vector<std::vector<char>>& fie
 }
 
 // Процедура, проверящая пустое пространстов (нули) на их состояния (окружены 1-ми или нет)
-void checkEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, int i, int j, Coord& pos, bool& flag)
+void CheckEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, int i, int j, Coord& pos, bool& flag)
 {
 	pos.x = i;
 	pos.y = j;
@@ -54,7 +51,7 @@ void checkEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& 
 	}
 	if (field[i][j] == BORDER)
 	{
-		changeMarker(stack, field, pos, BORDER);
+		ChangeMarker(stack, field, pos, BORDER);
 		flag = true;
 		return;
 	}
@@ -62,20 +59,19 @@ void checkEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& 
 	{
 		if (!flag)
 		{
-			changeMarker(stack, field, pos, TREE);
+			ChangeMarker(stack, field, pos, TREE);
 		}
 		return;
 	}
-	checkEmptyPlace(stack, field, i + 1, j, pos, flag);
-	checkEmptyPlace(stack, field, i - 1, j, pos, flag);
-	checkEmptyPlace(stack, field, i, j + 1, pos, flag);
-	checkEmptyPlace(stack, field, i, j - 1, pos, flag);
+	CheckEmptyPlace(stack, field, i + 1, j, pos, flag);
+	CheckEmptyPlace(stack, field, i - 1, j, pos, flag);
+	CheckEmptyPlace(stack, field, i, j + 1, pos, flag);
+	CheckEmptyPlace(stack, field, i, j - 1, pos, flag);
 }
 
 // Подсчет количества блоков забора
-int countFenceBlock(std::vector<std::vector<char>>& field, int& lines, int& columns)
+int CountFenceBlock(std::vector<std::vector<char>>& field, int lines, int columns)
 {
-	 // подсчет заборов (пока не работает)
 	int count = 0;
 	for (int i = 0; i < lines; i++)
 	{
@@ -94,14 +90,14 @@ int countFenceBlock(std::vector<std::vector<char>>& field, int& lines, int& colu
 	return count;
 }
 
-void readFile(std::vector<std::vector<char>>& field, int lines, int columns, std::ifstream input)
+void ReadFile(std::vector<std::vector<char>>& field, int lines, int columns)
 {
 	for (int i = 0; i < lines; i++)
 	{
 		for (int j = 0; j < columns; j++)
 		{
 			char ch;
-			input >> ch;
+			std::cin >> ch;
 			if ((ch == EMPTY) && ((j == 0 || j == columns - 1) || (i == 0 || i == lines - 1)))
 			{
 				field[i][j] = BORDER;
@@ -120,48 +116,26 @@ void readFile(std::vector<std::vector<char>>& field, int lines, int columns, std
 
 int main()
 {
-	std::ifstream input(IN_FILE);
-	std::ofstream output(OUT_FILE);
-
 	int lines, columns;
-	input >> lines >> columns;
+	std::cin >> lines >> columns;
 
 	std::vector<Coord> memory;
 	std::vector<std::vector<char>> field(lines, std::vector<char>(columns));
 
 	// считывание файла
-	for (int i = 0; i < lines; i++)
-	{
-		for (int j = 0; j < columns; j++)
-		{
-			char ch;
-			input >> ch;
-			if ((ch == EMPTY) && ((j == 0 || j == columns - 1) || (i == 0 || i == lines - 1))) // нули на границе -> #
-			{
-				field[i][j] = BORDER;
-			} 
-			else
-			{
-				field[i][j] = EMPTY;
-			}
-			if (ch == TREE)
-			{
-				field[i][j] = TREE;
-			}
-		}
-	}
+	ReadFile(field, lines, columns);
 
 	Coord pos;
 
 	// Обход поля для нулей
-	for (int i = 1; i < lines - 1; i++)
+	for (int i = 0; i < lines; i++)
 	{
-		for (int j = 1; j < columns - 1; j++)
+		for (int j = 0; j < columns; j++)
 		{
 			if (field[i][j] == EMPTY) 
 			{
 				bool isBorder = false;
-				checkEmptyPlace(memory, field, i, j, pos, isBorder);
+				CheckEmptyPlace(memory, field, i, j, pos, isBorder);
 			}
 			else
 			{
@@ -170,8 +144,8 @@ int main()
 		}
 	}
 
-	int count = countFenceBlock(field, lines, columns);
-	output << count << '\n';
+	int count = CountFenceBlock(field, lines, columns);
+	std::cout << count << '\n';
 	
     return 0;
 }
