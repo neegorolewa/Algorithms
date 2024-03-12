@@ -41,32 +41,39 @@ void ChangeMarker(std::vector<Coord>& stack, std::vector<std::vector<char>>& fie
 }
 
 // Процедура, проверящая пустое пространстов (нули) на их состояния (окружены 1-ми или нет)
-void CheckEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, int i, int j, Coord& pos, bool& flag)
+void CheckEmptyPlace(/*std::vector<Coord>& stack, */std::vector<std::vector<char>>& field, int i, int j/*, Coord& pos, bool& flag*/)
 {
-	pos.x = i;
-	pos.y = j;
-	if (field[i][j] == EMPTY)
+	/*pos.x = i;
+	pos.y = j;*/
+	/*if (field[i][j] == EMPTY)
 	{
-		stack.push_back(pos);
-	}
-	if (field[i][j] == BORDER)
+		*/if ((field[i + 1][j] == BORDER) or (field[i - 1][j] == BORDER) or (field[i][j + 1] == BORDER) or (field[i][j - 1] == BORDER))
+		{
+			field[i][j] = BORDER;
+		}
+		else
+		{
+			field[i][j] = TREE;
+		}
+	/*}*/
+	/*if (field[i][j] == BORDER)
 	{
 		ChangeMarker(stack, field, pos, BORDER);
 		flag = true;
 		return;
-	}
-	if (field[i][j] == TREE)
+	}*/
+	/*if (field[i][j] == TREE)
 	{
 		if (!flag)
 		{
 			ChangeMarker(stack, field, pos, TREE);
 		}
 		return;
-	}
-	CheckEmptyPlace(stack, field, i + 1, j, pos, flag);
+	}*/
+	/*CheckEmptyPlace(stack, field, i + 1, j, pos, flag);
 	CheckEmptyPlace(stack, field, i - 1, j, pos, flag);
 	CheckEmptyPlace(stack, field, i, j + 1, pos, flag);
-	CheckEmptyPlace(stack, field, i, j - 1, pos, flag);
+	CheckEmptyPlace(stack, field, i, j - 1, pos, flag);*/
 }
 
 // Подсчет количества блоков забора
@@ -134,8 +141,8 @@ int main()
 		{
 			if (field[i][j] == EMPTY) 
 			{
-				bool isBorder = false;
-				CheckEmptyPlace(memory, field, i, j, pos, isBorder);
+				/*bool isBorder = false;*/
+				CheckEmptyPlace(/*memory, */field, i, j/*, pos, isBorder*/);
 			}
 			else
 			{
@@ -144,8 +151,19 @@ int main()
 		}
 	}
 
+	
+
 	int count = CountFenceBlock(field, lines, columns);
 	std::cout << count << '\n';
+
+	for (int i = 0; i < lines; i++)
+	{
+		for (int j = 0; j < columns; j++)
+		{
+			std::cout << field[i][j];
+		}
+		std::cout << '\n';
+	}
 	
     return 0;
 }

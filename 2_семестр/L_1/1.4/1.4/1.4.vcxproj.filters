@@ -27,9 +27,5 @@
     <Text Include="input5.txt" />
     <Text Include="input6.txt" />
     <Text Include="output.txt" />
-    <Text Include="input_test_200.txt" />
-    <Text Include="input_test_100.txt" />
-    <Text Include="input_test_50.txt" />
-    <Text Include="input_test_10.txt" />
   </ItemGroup>
 </Project>
