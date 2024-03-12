@@ -24,9 +24,9 @@ const char TREE = '1';
 const char EMPTY = '0';
 const char BORDER = '#';
 const char PASSED = '.';
-const std::string IN_FILE = "input_test_10.txt";
-const std::string OUT_FILE = "output.txt";
- 
+const std::string IN_FILE = "input1.txt";
+const std::string OUT_FILE = "output.txt"; 
+
 struct Coord {
 	int x;
 	int y;
