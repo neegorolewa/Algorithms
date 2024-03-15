@@ -20,10 +20,11 @@
 #include <windows.h>
 #include <string>
 
+const char VIZITED = '+';
 const char TREE = '1';
 const char EMPTY = '0';
 const char BORDER = '#';
- 
+
 struct Coord {
 	int x;
 	int y;
@@ -41,39 +42,79 @@ void ChangeMarker(std::vector<Coord>& stack, std::vector<std::vector<char>>& fie
 }
 
 // Процедура, проверящая пустое пространстов (нули) на их состояния (окружены 1-ми или нет)
-void CheckEmptyPlace(/*std::vector<Coord>& stack, */std::vector<std::vector<char>>& field, int i, int j/*, Coord& pos, bool& flag*/)
+void CheckEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, int i, int j, Coord& pos)
 {
-	/*pos.x = i;
-	pos.y = j;*/
-	/*if (field[i][j] == EMPTY)
+	pos.x = i;
+	pos.y = j;
+
+	if (i >= 0 && i < field.size() && j >= 0 && j < field[i].size())
 	{
-		*/if ((field[i + 1][j] == BORDER) or (field[i - 1][j] == BORDER) or (field[i][j + 1] == BORDER) or (field[i][j - 1] == BORDER))
+		if (field[i][j] == EMPTY)
 		{
-			field[i][j] = BORDER;
+			if (field[i][j] == VIZITED) return;
+
+			stack.push_back(pos);
+			field[i][j] = VIZITED;
+
+			bool hasEmptyNeighbor = false;
+			bool hasBorderNeighbor = false;
+
+			if (i + 1 < field.size() && field[i + 1][j] == EMPTY) hasEmptyNeighbor = true;
+			if (i - 1 >= 0 && field[i - 1][j] == EMPTY) hasEmptyNeighbor = true;
+			if (j + 1 < field[i].size() && field[i][j + 1] == EMPTY) hasEmptyNeighbor = true;
+			if (j - 1 >= 0 && field[i][j - 1] == EMPTY) hasEmptyNeighbor = true;
+
+			//---------------------------------------------------------------
+
+			if (i + 1 < field.size() && j - 1 >= 0 && field[i + 1][j - 1] == EMPTY) hasEmptyNeighbor = true;
+			if (i - 1 >= 0 && j + 1 < field[i - 1].size() && field[i - 1][j + 1] == EMPTY) hasEmptyNeighbor = true;
+			if (i + 1 < field.size() && j + 1 < field[i - 1].size() && field[i + 1][j + 1] == EMPTY) hasEmptyNeighbor = true;
+			if (i - 1 >= 0 && j - 1 >= 0 && field[i - 1][j - 1] == EMPTY) hasEmptyNeighbor = true;
+
+			//---------------------------------------------------------------------
+
+			if (i + 1 < field.size() && field[i + 1][j] == BORDER) hasBorderNeighbor = true;
+			if (i - 1 >= 0 && field[i - 1][j] == BORDER) hasBorderNeighbor = true;
+			if (j + 1 < field[i].size() && field[i][j + 1] == BORDER) hasBorderNeighbor = true;
+			if (j - 1 >= 0 && field[i][j - 1] == BORDER) hasBorderNeighbor = true;
+
+			//--------------------------------------------------------------------
+
+			if (i + 1 < field.size() && j - 1 >= 0 && field[i + 1][j - 1] == BORDER) hasBorderNeighbor = true;
+			if (i - 1 >= 0 && j + 1 < field[i - 1].size() && field[i - 1][j + 1] == BORDER) hasBorderNeighbor = true;
+			if (i + 1 < field.size() && j + 1 < field[i - 1].size() && field[i + 1][j + 1] == BORDER) hasBorderNeighbor = true;
+			if (i - 1 >= 0 && j - 1 >= 0 && field[i - 1][j - 1] == BORDER) hasBorderNeighbor = true;
+
+
+			if (hasBorderNeighbor)
+			{
+				field[i][j] = BORDER;
+			}
+
+			if (hasEmptyNeighbor)
+			{
+				CheckEmptyPlace(stack, field, i + 1, j, pos);
+				CheckEmptyPlace(stack, field, i - 1, j, pos);
+				CheckEmptyPlace(stack, field, i, j + 1, pos);
+				CheckEmptyPlace(stack, field, i, j - 1, pos);
+				CheckEmptyPlace(stack, field, i + 1, j - 1, pos);
+				CheckEmptyPlace(stack, field, i - 1, j - 1, pos);
+				CheckEmptyPlace(stack, field, i + 1, j + 1, pos);
+				CheckEmptyPlace(stack, field, i - 1, j + 1, pos);
+			}
+			else
+			{
+				if (hasBorderNeighbor)
+				{
+					ChangeMarker(stack, field, pos, BORDER);
+				}
+				else
+				{
+					ChangeMarker(stack, field, pos, TREE);
+				}
+			}
 		}
-		else
-		{
-			field[i][j] = TREE;
-		}
-	/*}*/
-	/*if (field[i][j] == BORDER)
-	{
-		ChangeMarker(stack, field, pos, BORDER);
-		flag = true;
-		return;
-	}*/
-	/*if (field[i][j] == TREE)
-	{
-		if (!flag)
-		{
-			ChangeMarker(stack, field, pos, TREE);
-		}
-		return;
-	}*/
-	/*CheckEmptyPlace(stack, field, i + 1, j, pos, flag);
-	CheckEmptyPlace(stack, field, i - 1, j, pos, flag);
-	CheckEmptyPlace(stack, field, i, j + 1, pos, flag);
-	CheckEmptyPlace(stack, field, i, j - 1, pos, flag);*/
+	}
 }
 
 // Подсчет количества блоков забора
@@ -139,10 +180,9 @@ int main()
 	{
 		for (int j = 0; j < columns; j++)
 		{
-			if (field[i][j] == EMPTY) 
+			if (field[i][j] == EMPTY)
 			{
-				/*bool isBorder = false;*/
-				CheckEmptyPlace(/*memory, */field, i, j/*, pos, isBorder*/);
+				CheckEmptyPlace(memory, field, i, j, pos);
 			}
 			else
 			{
@@ -151,7 +191,7 @@ int main()
 		}
 	}
 
-	
+
 
 	int count = CountFenceBlock(field, lines, columns);
 	std::cout << count << '\n';
@@ -164,7 +204,7 @@ int main()
 		}
 		std::cout << '\n';
 	}
-	
-    return 0;
+
+	return 0;
 }
 
