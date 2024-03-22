@@ -15,196 +15,84 @@
 //
 
 #include <iostream>
-#include <vector>
 #include <fstream>
-#include <windows.h>
-#include <string>
+#include <vector>
+#include <queue>
 
-const char VIZITED = '+';
-const char TREE = '1';
-const char EMPTY = '0';
-const char BORDER = '#';
+using namespace std;
 
-struct Coord {
-	int x;
-	int y;
-};
+void floodFill(vector < vector < int>>& matrix, int row, int col) {
+	queue < pair<int, int>> q;
+	q.push(make_pair(row, col));
 
-// Процедура, изменяющая пройденные нули на "#" или "1", в зависмости от состояния
-void ChangeMarker(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, Coord& pos, char changeCh)
-{
-	while (!stack.empty())
-	{
-		pos = stack.back();
-		stack.pop_back();
-		field[pos.x][pos.y] = changeCh;
+	while (!q.empty()) {
+		int x = q.front().first;
+		int y = q.front().second;
+		q.pop();
+
+		if (x >= 0 && x < matrix.size() && y >= 0 && y < matrix[0].size() && matrix[x][y] == 0) {
+			matrix[x][y] = 2;
+			q.push(make_pair(x - 1, y));
+			q.push(make_pair(x + 1, y));
+			q.push(make_pair(x, y - 1));
+			q.push(make_pair(x, y + 1));
+		}
 	}
 }
 
-// Процедура, проверящая пустое пространстов (нули) на их состояния (окружены 1-ми или нет)
-void CheckEmptyPlace(std::vector<Coord>& stack, std::vector<std::vector<char>>& field, int i, int j, Coord& pos)
-{
-	pos.x = i;
-	pos.y = j;
+void fillOuterBorderWithTwos(vector < vector < int>>& matrix) {
+	int rows = matrix.size();
+	int cols = matrix[0].size();
 
-	if (i >= 0 && i < field.size() && j >= 0 && j < field[i].size())
-	{
-		if (field[i][j] == EMPTY)
-		{
-			if (field[i][j] == VIZITED) return;
+	for (int i = 0; i < rows; i++) {
+		floodFill(matrix, i, 0);
+		floodFill(matrix, i, cols - 1);
+	}
 
-			stack.push_back(pos);
-			field[i][j] = VIZITED;
+	for (int j = 0; j < cols; j++) {
+		floodFill(matrix, 0, j);
+		floodFill(matrix, rows - 1, j);
+	}
+}
 
-			bool hasEmptyNeighbor = false;
-			bool hasBorderNeighbor = false;
+void fillInnerBorderWithOnes(vector < vector < int>>& matrix) {
+	int rows = matrix.size();
+	int cols = matrix[0].size();
 
-			if (i + 1 < field.size() && field[i + 1][j] == EMPTY) hasEmptyNeighbor = true;
-			if (i - 1 >= 0 && field[i - 1][j] == EMPTY) hasEmptyNeighbor = true;
-			if (j + 1 < field[i].size() && field[i][j + 1] == EMPTY) hasEmptyNeighbor = true;
-			if (j - 1 >= 0 && field[i][j - 1] == EMPTY) hasEmptyNeighbor = true;
-
-			//---------------------------------------------------------------
-
-			if (i + 1 < field.size() && j - 1 >= 0 && field[i + 1][j - 1] == EMPTY) hasEmptyNeighbor = true;
-			if (i - 1 >= 0 && j + 1 < field[i - 1].size() && field[i - 1][j + 1] == EMPTY) hasEmptyNeighbor = true;
-			if (i + 1 < field.size() && j + 1 < field[i - 1].size() && field[i + 1][j + 1] == EMPTY) hasEmptyNeighbor = true;
-			if (i - 1 >= 0 && j - 1 >= 0 && field[i - 1][j - 1] == EMPTY) hasEmptyNeighbor = true;
-
-			//---------------------------------------------------------------------
-
-			if (i + 1 < field.size() && field[i + 1][j] == BORDER) hasBorderNeighbor = true;
-			if (i - 1 >= 0 && field[i - 1][j] == BORDER) hasBorderNeighbor = true;
-			if (j + 1 < field[i].size() && field[i][j + 1] == BORDER) hasBorderNeighbor = true;
-			if (j - 1 >= 0 && field[i][j - 1] == BORDER) hasBorderNeighbor = true;
-
-			//--------------------------------------------------------------------
-
-			if (i + 1 < field.size() && j - 1 >= 0 && field[i + 1][j - 1] == BORDER) hasBorderNeighbor = true;
-			if (i - 1 >= 0 && j + 1 < field[i - 1].size() && field[i - 1][j + 1] == BORDER) hasBorderNeighbor = true;
-			if (i + 1 < field.size() && j + 1 < field[i - 1].size() && field[i + 1][j + 1] == BORDER) hasBorderNeighbor = true;
-			if (i - 1 >= 0 && j - 1 >= 0 && field[i - 1][j - 1] == BORDER) hasBorderNeighbor = true;
-
-
-			if (hasBorderNeighbor)
-			{
-				field[i][j] = BORDER;
-			}
-
-			if (hasEmptyNeighbor)
-			{
-				CheckEmptyPlace(stack, field, i + 1, j, pos);
-				CheckEmptyPlace(stack, field, i - 1, j, pos);
-				CheckEmptyPlace(stack, field, i, j + 1, pos);
-				CheckEmptyPlace(stack, field, i, j - 1, pos);
-				CheckEmptyPlace(stack, field, i + 1, j - 1, pos);
-				CheckEmptyPlace(stack, field, i - 1, j - 1, pos);
-				CheckEmptyPlace(stack, field, i + 1, j + 1, pos);
-				CheckEmptyPlace(stack, field, i - 1, j + 1, pos);
-			}
-			else
-			{
-				if (hasBorderNeighbor)
-				{
-					ChangeMarker(stack, field, pos, BORDER);
-				}
-				else
-				{
-					ChangeMarker(stack, field, pos, TREE);
-				}
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			if (matrix[i][j] == 0) {
+				matrix[i][j] = 1;
 			}
 		}
 	}
 }
 
-// Подсчет количества блоков забора
-int CountFenceBlock(std::vector<std::vector<char>>& field, int lines, int columns)
-{
-	int count = 0;
-	for (int i = 0; i < lines; i++)
-	{
-		for (int j = 0; j < columns; j++)
-		{
-			if (field[i][j] == TREE)
-			{
-				if (i == 0 || field[i - 1][j] == BORDER) count++; // check North
-				if (i == lines - 1 || field[i + 1][j] == BORDER) count++; // check South
-				if (j == 0 || field[i][j - 1] == BORDER) count++; // check West
-				if (j == columns - 1 || field[i][j + 1] == BORDER) count++; // check East
-			}
+int main() {
+	int rows, cols;
+	cin >> rows >> cols;
+
+	vector < vector < int>> matrix(rows, vector<int>(cols));
+	char c;
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			cin >> c;
+			matrix[i][j] = c - '0';
 		}
 	}
 
-	return count;
+	fillOuterBorderWithTwos(matrix);
+	fillInnerBorderWithOnes(matrix);
+
+	int fence = 0;
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			if (matrix[i][j] == 1) {
+				fence += 4;
+				if (i > 0 && matrix[i - 1][j] == 1) fence -= 2;
+				if (j > 0 && matrix[i][j - 1] == 1) fence -= 2;
+			}
+		}
+	}
+	cout << fence << endl;
 }
-
-void ReadFile(std::vector<std::vector<char>>& field, int lines, int columns)
-{
-	for (int i = 0; i < lines; i++)
-	{
-		for (int j = 0; j < columns; j++)
-		{
-			char ch;
-			std::cin >> ch;
-			if ((ch == EMPTY) && ((j == 0 || j == columns - 1) || (i == 0 || i == lines - 1)))
-			{
-				field[i][j] = BORDER;
-			}
-			else
-			{
-				field[i][j] = EMPTY;
-			}
-			if (ch == TREE)
-			{
-				field[i][j] = TREE;
-			}
-		}
-	}
-}
-
-int main()
-{
-	int lines, columns;
-	std::cin >> lines >> columns;
-
-	std::vector<Coord> memory;
-	std::vector<std::vector<char>> field(lines, std::vector<char>(columns));
-
-	// считывание файла
-	ReadFile(field, lines, columns);
-
-	Coord pos;
-
-	// Обход поля для нулей
-	for (int i = 0; i < lines; i++)
-	{
-		for (int j = 0; j < columns; j++)
-		{
-			if (field[i][j] == EMPTY)
-			{
-				CheckEmptyPlace(memory, field, i, j, pos);
-			}
-			else
-			{
-				continue;
-			}
-		}
-	}
-
-
-
-	int count = CountFenceBlock(field, lines, columns);
-	std::cout << count << '\n';
-
-	for (int i = 0; i < lines; i++)
-	{
-		for (int j = 0; j < columns; j++)
-		{
-			std::cout << field[i][j];
-		}
-		std::cout << '\n';
-	}
-
-	return 0;
-}
-
