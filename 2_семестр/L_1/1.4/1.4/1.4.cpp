@@ -12,7 +12,18 @@
 //В следующих N строках содержатся последовательности из K символов(единиц или нулей).
 //Единицей обозначается расположение дерева, а нулем – его отсутствие в узле координатной сетки.
 //ВЫВОД: В единственной строке выводится число блоков забора, необходимое для огораживания.
-//
+// 
+//Ввод 1      Ввод 2
+//3 6         5 7
+//001110      0101010
+//011011      1111111
+//011110      0101010
+//1100011
+//0111110
+// 
+//Вывод 1     Вывод 2
+//16          32
+
 
 #include <iostream>
 #include <fstream>
@@ -40,7 +51,7 @@ void floodFill(vector < vector < int>>& matrix, int row, int col) {
 	}
 }
 
-void fillOuterBorderWithTwos(vector < vector < int>>& matrix) {
+void fillOuterBorder(vector < vector < int>>& matrix) {
 	int rows = matrix.size();
 	int cols = matrix[0].size();
 
@@ -55,7 +66,7 @@ void fillOuterBorderWithTwos(vector < vector < int>>& matrix) {
 	}
 }
 
-void fillInnerBorderWithOnes(vector < vector < int>>& matrix) {
+void fillInnerBorder(vector < vector < int>>& matrix) {
 	int rows = matrix.size();
 	int cols = matrix[0].size();
 
@@ -66,6 +77,22 @@ void fillInnerBorderWithOnes(vector < vector < int>>& matrix) {
 			}
 		}
 	}
+}
+
+int CountFenceBlock(int rows, int cols, vector<vector<int>>& matrix)
+{
+	int fence = 0;
+	for (int i = 0; i < rows; i++) {
+		for (int j = 0; j < cols; j++) {
+			if (matrix[i][j] == 1) {
+				fence += 4;
+				if (i > 0 && matrix[i - 1][j] == 1) fence -= 2;
+				if (j > 0 && matrix[i][j - 1] == 1) fence -= 2;
+			}
+		}
+	}
+
+	return fence;
 }
 
 int main() {
@@ -81,18 +108,10 @@ int main() {
 		}
 	}
 
-	fillOuterBorderWithTwos(matrix);
-	fillInnerBorderWithOnes(matrix);
+	fillOuterBorder(matrix);
+	fillInnerBorder(matrix);
 
-	int fence = 0;
-	for (int i = 0; i < rows; i++) {
-		for (int j = 0; j < cols; j++) {
-			if (matrix[i][j] == 1) {
-				fence += 4;
-				if (i > 0 && matrix[i - 1][j] == 1) fence -= 2;
-				if (j > 0 && matrix[i][j - 1] == 1) fence -= 2;
-			}
-		}
-	}
+	int fence = CountFenceBlock(rows, cols, matrix);
+
 	cout << fence << endl;
 }
